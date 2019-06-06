@@ -8,26 +8,29 @@ from PIL import ImageFont
 from PIL.ExifTags import TAGS
 
 model_list ={"ILCE-6000":"α6000","ILCE-6300":"α6300","ILCE-6500":"α6500"}
+data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
+font_path = "meiryo.ttc"
 
 def get_exif_of_image(file):
     im = Image.open(file)
-
     # Exif データを取得
     # 存在しなければそのまま終了 空の辞書を返す
     try:
         exif = im._getexif()
     except AttributeError:
-        return []
+        return {}
 
     # タグIDそのままでは人が読めないのでデコードして
     # テーブルに格納する
     exif_table = {}
-    
-    for tag_id, value in exif.items():
-        tag = TAGS.get(tag_id, tag_id)
-        exif_table[tag] = value
 
-    data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
+    try:
+        for tag_id, value in exif.items():
+            tag = TAGS.get(tag_id, tag_id)
+            exif_table[tag] = value
+    except AttributeError:
+        pass
+
     exif_data ={}
     for id in data_requried:
         try:
@@ -42,6 +45,7 @@ def get_exif_of_image(file):
         except KeyError:
             pass
     return exif_data
+
 
 def phoyo_info_to_str(name,**exif_data):
     #カメラの形式を製品名に変換
@@ -70,6 +74,7 @@ def phoyo_info_to_str(name,**exif_data):
         exif_str +="Photo by "+name
     return exif_str
 
+
 def image_add_str(image_path,text,font_path):
     image =Image.open(image_path)
     font_size =int(0.016*image.height)
@@ -88,13 +93,14 @@ def image_add_str(image_path,text,font_path):
     return image
 
 
-def main():
-    image_path = input("画像のパスを入力")
-    name =input("撮影者名を入力")
-    font_path = "C:\Windows\Fonts\meiryo.ttc"
-    image_add_str(image_path,phoyo_info_to_str(name,**get_exif_of_image(image_path)),font_path).show()
-    #image_add_str(image_path,phoyo_info_to_str(name,**get_exif_of_image(image_path)),font_path).save("output.jpg",quality=100)
+def main(image_path,name):
+    image_str_added=image_add_str(image_path,phoyo_info_to_str(name,**get_exif_of_image(image_path)),font_path)
+    image_str_added.show()
+    image_str_added.save("./image/output.jpg",quality=100)
 
 
 if __name__ == "__main__":
-    main()
+    image_path = input("画像のパスを入力")
+    name =input("撮影者名を入力")
+    main(image_path,name)
+    
