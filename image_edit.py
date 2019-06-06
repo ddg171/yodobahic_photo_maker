@@ -6,21 +6,31 @@ from PIL import ImageFont
 
 
 
-def image_add_str(image_path,text,font_path,font_size):
+def image_add_str(image_path,text,font_path,font_size,margin=10):
     image =Image.open(image_path)
     
     font =ImageFont.truetype(font_path,font_size)
 
     draw = ImageDraw.Draw(image)
+    
+    if draw.textsize(text,font)[0]+margin>image.width:
+        while draw.textsize(text+"...",font)[0]>image.width-margin:
+            text= text[:-1]
+        text=text+"..."
     text_wigth= draw.textsize(text,font)[0]
-    draw_x=image.width-(text_wigth+15)
-    draw_y = image.height-(font_size+15)
+    draw_x=image.width-(text_wigth+margin)
+    draw_y = image.height-(font_size+margin)
     draw.text((draw_x, draw_y), text, font=font, fill=(255,255,255,128))
     return image
 
-if  __name__ == "__main__":
-    text = "α6000, Sony E 50mm F1.8 OSS, 1/4000, F1.8, ISO 100, Photo by Hogehogehogehoge"
-    font_path = "C:\Windows\Fonts\meiryo.ttc"
 
-    image_add_str("sample.jpg",text,font_path,20).save("sample_added.jpg",quallity=100)
+        
+
+if  __name__ == "__main__":
+    text = "α6000, Sony E 50mm F1.8 OSS, 1/4000, F1.8, ISO 100, Photo by Hogehogehogehogehogehogeporiporihogehogehogehogehogehogehogehogehogehogehogeabcdefghijk"
+    font_path = "C:\Windows\Fonts\meiryo.ttc"
+    font_size =30
+
+    image_add_str("sample.jpg",text,font_path,font_size).show()
+    #image_add_str("sample.jpg",text,font_path,30).save("sample_added.jpg",quallity=100)
     
