@@ -18,8 +18,7 @@ def get_exif_of_image(file):
     try:
         exif = im._getexif()
     except AttributeError:
-        return {}
-    
+        return []
 
     # タグIDそのままでは人が読めないのでデコードして
     # テーブルに格納する
@@ -29,14 +28,26 @@ def get_exif_of_image(file):
         tag = TAGS.get(tag_id, tag_id)
         exif_table[tag] = value
 
-    return exif_table
+    data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
+    exif_data ={}
+    for id in data_requried:
+        try:
+            if id =="Model" or id== "LensModel":
+                exif_data[id]=exif_table[id]
+            elif id=="ExposureTime":
+                exif_data[id]=str(exif_table["ExposureTime"][0])+"/"+str(exif_table["ExposureTime"][1])
+            elif id == "FNumber":
+                exif_data[id]="F"+str(exif_table["FNumber"][0]/exif_table["FNumber"][1])
+            elif id =="ISOSpeedRatings":
+                exif_data[id]="ISO "+str(exif_table["ISOSpeedRatings"])
+        except KeyError:
+            pass
+    return exif_data
 
-exif_data = get_exif_of_image("sample.jpg")
 
-#pprint.pprint(exif_data)
+if __name__ == "__main__":
+    exif_data = get_exif_of_image("sample.jpg")
+    pprint.pprint(exif_data)
 
-
-photo_info =[exif_data["Model"],exif_data["LensModel"],str(exif_data["ExposureTime"][0])+"/"+str(exif_data["ExposureTime"][1]),"F"+str(exif_data["FNumber"][0]/exif_data["FNumber"][1]),"ISO "+str(exif_data["ISOSpeedRatings"])]
-
-pprint.pprint(photo_info)
 #pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)str(exif_data["ExposureTime"][0])
+#レンズ一体型デジタルカメラは"LensModel"の項目がない。なのでKeyErrorが出る。
