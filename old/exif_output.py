@@ -49,5 +49,5 @@ if __name__ == "__main__":
     exif_data = get_exif_of_image("sample.jpg")
     pprint.pprint(exif_data)
 
-#pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)str(exif_data["ExposureTime"][0])
+#pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)
 #レンズ一体型デジタルカメラは"LensModel"の項目がない。なのでKeyErrorが出る。
