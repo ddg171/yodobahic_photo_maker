@@ -1,6 +1,8 @@
 #coding UTF-8
 
 import re
+import os
+import datetime
 
 from PIL import Image
 from PIL import ImageDraw
@@ -77,9 +79,9 @@ def phoyo_info_to_str(name,**exif_data):
 
 
 def image_add_str(image_path,text,font_path):
-    threshold_color =210
-    color_white =(230,230,230,120)
-    color_black =(40,40,40,120)
+    threshold_color =230
+    color_white =(240,240,240,120)
+    color_black =(30,30,30,120)
     
     #文字列を画像に書き込む
     image =Image.open(image_path)
@@ -122,13 +124,20 @@ def image_add_str(image_path,text,font_path):
     return image
 
 
-def main(name,image_path):
+def main(name,image_path,output_dir="finished"):
+    now = datetime.datetime.now()
+    output_name=os.path.basename(image_path).split(".")[0]+"_edited_in_"+now.strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+    if os.path.isdir(output_dir) ==False:
+        os.makedirs(output_dir)
+    output_path=output_dir+"\\"+ output_name
+    print(output_path)
+
     image_str_added=image_add_str(image_path,phoyo_info_to_str(name,**get_exif_of_image(image_path)),font_path)
-    image_str_added.show()
-    image_str_added.save("./image/output.jpg",quality=100)
+    image_str_added.save(output_path,quality=100)
 
 
 if __name__ == "__main__":
     image_path = input("画像のパスを入力")
     name =input("撮影者名を入力")
-    main(name,image_path)
+    output_dir=input("出力先フォルダを指定")
+    main(name,image_path,output_dir)
