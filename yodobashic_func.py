@@ -7,9 +7,9 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from PIL.ExifTags import TAGS
 
-model_list ={"ILCE-6000":"α6000","ILCE-6300":"α6300","ILCE-6500":"α6500"}
+model_list ={"ILCE-6000":"α6000","ILCE-6300":"α6300","ILCE-6400":"α6400","ILCE-6500":"α6500"}
 data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
-font_path = "meiryo.ttc"
+font_path = "font\meiryo.ttc"
 
 def get_exif_of_image(file):
     im = Image.open(file)
@@ -48,6 +48,7 @@ def get_exif_of_image(file):
 
 
 def phoyo_info_to_str(name,**exif_data):
+    #取り出したEXIF情報を一つの文字列にまとめる
     #カメラの形式を製品名に変換
     try:
         for number,model_name in model_list.items():
@@ -76,24 +77,52 @@ def phoyo_info_to_str(name,**exif_data):
 
 
 def image_add_str(image_path,text,font_path):
+    threshold_color =210
+    color_white =(230,230,230,120)
+    color_black =(40,40,40,120)
+    
+    #文字列を画像に書き込む
     image =Image.open(image_path)
     font_size =int(0.016*image.height)
     margin =font_size
     font =ImageFont.truetype(font_path,font_size)
     draw = ImageDraw.Draw(image)
-    
+    #文字数に応じて位置を調整する
     if draw.textsize(text,font)[0]+margin>image.width:
         while draw.textsize(text+"...",font)[0]>image.width-margin:
             text= text[:-1]
         text=text+"..."
-    text_wigth= draw.textsize(text,font)[0]
-    draw_x=image.width-(text_wigth+margin)
+    text_width= draw.textsize(text,font)[0]
+    draw_x=image.width-(text_width+margin)
     draw_y = image.height-(font_size+margin)
-    draw.text((draw_x, draw_y), text, font=font, fill=(255,255,255,128))
+
+    #背景に合わせて文字色を変更する
+    image_cropped = image.crop((draw_x,draw_y,image.width,image.height))
+    image_cropped.convert("RGB")
+    red_list=[]
+    green_list=[]
+    blue_list=[]
+    for y in range(image_cropped.height):
+        for x in range(image_cropped.width):
+            red,green,blue = image_cropped.getpixel((x,y))
+            red_list.append(red)
+            green_list.append(green)
+            blue_list.append(blue)
+
+    red_ave =sum(red_list)/len(red_list)
+    green_ave=sum(green_list)/len(green_list)
+    blue_ave=sum(blue_list)/len(blue_list)
+
+    if red_ave >threshold_color and green_ave>threshold_color and blue_ave>threshold_color:
+        color = color_white
+    else:
+        color=color_black
+
+    draw.text((draw_x, draw_y), text, font=font, fill=color)
     return image
 
 
-def main(image_path,name):
+def main(name,image_path):
     image_str_added=image_add_str(image_path,phoyo_info_to_str(name,**get_exif_of_image(image_path)),font_path)
     image_str_added.show()
     image_str_added.save("./image/output.jpg",quality=100)
@@ -102,5 +131,4 @@ def main(image_path,name):
 if __name__ == "__main__":
     image_path = input("画像のパスを入力")
     name =input("撮影者名を入力")
-    main(image_path,name)
-    
+    main(name,image_path)
