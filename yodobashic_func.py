@@ -124,9 +124,10 @@ def image_add_str(image_path,text,font_path):
     return image
 
 
-def main(name,image_path,output_dir="finished"):
+def main(name,image_path,output_dir):
     now = datetime.datetime.now()
     output_name=os.path.basename(image_path).split(".")[0]+"_edited_in_"+now.strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+    output_dir=os.path.abspath(output_dir)
     if os.path.isdir(output_dir) ==False:
         os.makedirs(output_dir)
     output_path=output_dir+"\\"+ output_name
@@ -139,5 +140,5 @@ def main(name,image_path,output_dir="finished"):
 if __name__ == "__main__":
     image_path = input("画像のパスを入力")
     name =input("撮影者名を入力")
-    output_dir=input("出力先フォルダを指定")
+    output_dir=input("出力先フォルダを指定") or "finished"
     main(name,image_path,output_dir)
