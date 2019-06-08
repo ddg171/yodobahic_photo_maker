@@ -8,9 +8,10 @@ from PIL import Image
 from PIL import ImageOps
 from PIL import ImageDraw
 from PIL import ImageFont
-from PIL.ExifTags import TAGS
+#from PIL.ExifTags import TAGS
 
 def get_exif_of_image(image):
+    TAGS_lite={0x0110: "Model",0xa434: "LensModel",0x829a: "ExposureTime",0x829d: "FNumber",0x8827: "ISOSpeedRatings",0x0112: "Orientation",}
     data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings","Orientation"]
     # Exif データを取得
     # 存在しなければそのまま終了 空の辞書を返す
@@ -24,7 +25,7 @@ def get_exif_of_image(image):
     exif_table = {}
     try:
         for tag_id, value in exif.items():
-            tag = TAGS.get(tag_id, tag_id)
+            tag = TAGS_lite.get(tag_id, tag_id)
             exif_table[tag] = value
     except AttributeError:
         pass
@@ -41,7 +42,7 @@ def get_exif_of_image(image):
             elif id == "FNumber":
                 exif_data[id]="F"+str(exif_table["FNumber"][0]/exif_table["FNumber"][1])
             elif id =="ISOSpeedRatings":
-                exif_data[id]="ISO "+str(exif_table["ISOSpeedRatings"])
+                exif_data[id]="ISO"+str(exif_table["ISOSpeedRatings"])
             #縦横判別情報も一緒に取り出しておく
             elif id == "Orientation":
                 exif_data[id]=exif_table["Orientation"]
@@ -73,9 +74,9 @@ def photo_info_to_str(name,**exif_data):
 
 def color_check(image_cropped):
     #文字の背景に合わせて文字色を決める
-    threshold =160
-    color_white =(250,250,250,100)
-    color_black =(10,10,10,100)
+    threshold =150
+    color_white =(240,240,240,100)
+    color_black =(30,30,30,100)
     image_cropped.convert("RGB")
     red_list=[]
     green_list=[]
@@ -188,7 +189,7 @@ if __name__ == "__main__":
     resize=True
     name =input("撮影者名を入力")
     output_dir=input("出力先フォルダを指定") or "finished"
-    if input("リサイズしますか？(Y/N)\n") =="n" or "N":
+    if input("リサイズしますか？(Y/N)\n") ==("n" or "N"):
         resize = False
     print("ループ処理開始")
     while True:
