@@ -73,9 +73,9 @@ def photo_info_to_str(name,**exif_data):
 
 def color_check(image_cropped):
     #文字の背景に合わせて文字色を決める
-    threshold =190
-    color_white =(240,240,240,100)
-    color_black =(20,20,20,100)
+    threshold =160
+    color_white =(250,250,250,100)
+    color_black =(10,10,10,100)
     image_cropped.convert("RGB")
     red_list=[]
     green_list=[]
@@ -107,9 +107,12 @@ def write_to_image(image,text):
     draw = ImageDraw.Draw(image)
     #文字数に応じて位置を調整する
     if draw.textsize(text,font)[0]+margin>image.width:
-        while draw.textsize(text+"...",font)[0]>image.width-margin:
-            text= text[:-1]
-        text=text+"..."
+        while draw.textsize(text,font)[0]>image.width-margin:
+            if font_size<12:
+                break
+            font_size -=1
+            font =ImageFont.truetype(font_path,font_size)
+
     text_width= draw.textsize(text,font)[0]
     draw_x=image.width-(text_width+margin)
     draw_y = image.height-(font_size+margin)
@@ -155,27 +158,28 @@ def named_from_date(image_path):
     return os.path.basename(image_path).split(".")[0]+"_edited_in_"+now.strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
 
 
-def main(name,image_path,output_dir,resize):
+def make_photo_yodobashic(name,image_path,output_dir,resize):
     try:
         image=Image.open(image_path)
     except IOError: 
-        pass
+        pass #TODO なんか良い対応を考える
     #出力ファイルの名前を決める
     output_name= named_from_date(image_path)
-    #出力先ディレクトリを決める
+    #出力先を決める
     output_dir=os.path.abspath(output_dir)
     if os.path.isdir(output_dir) ==False: #フォルダが存在しない場合の対応
         os.makedirs(output_dir)
     output_path=output_dir+"\\"+ output_name
-    
+    #EXIF情報の取り出し
     exif_data= get_exif_of_image(image)
     orientation= exif_data["Orientation"]
     #exif情報から画像を回転させる
     image =rotate_image(image,orientation)
-
+    #書き込む文字列の整形
     photo_info = photo_info_to_str(name,**exif_data)
+    #書き込み
     image_str_added=write_to_image(image,photo_info)
-    if resize:
+    if resize: #必要ならリサイズ
         image_str_added=resize_for_web(image_str_added,960)
     image_str_added.save(output_path,quality=100)
 
@@ -184,13 +188,13 @@ if __name__ == "__main__":
     resize=True
     name =input("撮影者名を入力")
     output_dir=input("出力先フォルダを指定") or "finished"
-    if input("リサイズしますか？(Y/N)\\n") =="n" or "N":
+    if input("リサイズしますか？(Y/N)\n") =="n" or "N":
         resize = False
+    print("ループ処理開始")
     while True:
-        print("ループ処理開始")
         image_path = input("画像のパスを入力\n")
         if image_path !="":
-            main(name,image_path,output_dir,True)
+            make_photo_yodobashic(name,image_path,output_dir,resize)
             print("完了")
         else:
             print("終了")
