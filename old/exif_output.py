@@ -28,7 +28,7 @@ def get_exif_of_image(file):
         tag = TAGS.get(tag_id, tag_id)
         exif_table[tag] = value
 
-    data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
+    data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings","Orientation"]
     exif_data ={}
     for id in data_requried:
         try:
@@ -40,13 +40,16 @@ def get_exif_of_image(file):
                 exif_data[id]="F"+str(exif_table["FNumber"][0]/exif_table["FNumber"][1])
             elif id =="ISOSpeedRatings":
                 exif_data[id]="ISO "+str(exif_table["ISOSpeedRatings"])
+            #縦横判別情報も一緒に取り出しておく
+            elif id == "Orientation":
+                exif_data[id]=exif_table["Orientation"]
         except KeyError:
             pass
     return exif_data
 
 
 if __name__ == "__main__":
-    exif_data = get_exif_of_image("sample.jpg")
+    exif_data = get_exif_of_image("image\\sample3.JPG")
     pprint.pprint(exif_data)
 
 #pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)
