@@ -66,7 +66,7 @@ def photo_info_to_str(name,**exif_data):
             exif_str += exif_data[id]+","
         except KeyError:
             pass
-    if name =="":
+    if name == "":
         exif_str=exif_str[:-1]
     else:
         exif_str +="Photo by "+name
@@ -74,7 +74,7 @@ def photo_info_to_str(name,**exif_data):
 
 def color_check(image_cropped):
     #文字の背景に合わせて文字色を決める
-    threshold =150
+    threshold =110
     color_white =(240,240,240,100)
     color_black =(30,30,30,100)
     image_cropped.convert("RGB")
@@ -175,7 +175,8 @@ def make_photo_yodobashic(name,image_path,output_dir,resize):
     exif_data= get_exif_of_image(image)
     orientation= exif_data["Orientation"]
     #exif情報から画像を回転させる
-    image =rotate_image(image,orientation)
+    if orientation != 1:
+        image =rotate_image(image,orientation)
     #書き込む文字列の整形
     photo_info = photo_info_to_str(name,**exif_data)
     #書き込み
