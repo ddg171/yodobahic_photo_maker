@@ -102,7 +102,7 @@ def color_check(image_cropped):
 def write_to_image(image,text):
     font_path = "font\meiryo.ttc"
     #文字列を画像に書き込む
-    font_size =int(0.016*image.height)
+    font_size =int(0.014*image.height)
     margin =font_size
     font =ImageFont.truetype(font_path,font_size)
     draw = ImageDraw.Draw(image)
@@ -184,7 +184,6 @@ def make_photo_yodobashic(name,image_path,output_dir,resize):
     if resize: #必要ならリサイズ
         image_str_added=resize_for_web(image_str_added,960)
     image_str_added.save(output_path,quality=100)
-
 
 if __name__ == "__main__":
     resize=True
