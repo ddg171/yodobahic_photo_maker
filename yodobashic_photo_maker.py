@@ -109,7 +109,7 @@ def write_to_image(image,text):
     #文字数に応じて位置を調整する
     if draw.textsize(text,font)[0]+margin>image.width:
         while draw.textsize(text,font)[0]>image.width-margin:
-            if font_size<12:
+            if font_size<13:
                 break
             font_size -=1
             font =ImageFont.truetype(font_path,font_size)

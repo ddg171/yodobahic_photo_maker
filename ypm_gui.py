@@ -25,6 +25,11 @@ name_buffer =tkinter.StringVar() #撮影者名を格納
 #resize_conf = tkinter.BooleanVar() #リサイズ設定
 #resize_conf.set(True)
 
+#テキスト
+name_entry_text=""
+output_dir_entry_text=""
+form1_dialog_text=""
+output_dir_dialog_text=""
 
 #設定ファイルがある場合は設定を読み出し
 latest_config= shelve.open("ypm_config")
@@ -36,7 +41,39 @@ except KeyError:
     output_dir_init = ""
 latest_config.close()
 
+
+#UI
+#TODO 撮影者名入力（エントリー）
+tkinter.Label(text=name_entry_text, font=label_font).pack()
+name_entry = tkinter.Entry(root, textvariable=name_buffer,width=70)
+word_entry.insert(tkinter.END,name_init) 
+word_entry.pack(anchor = 'w', fill="both" )
+
+#TODO 画像ファイル入力（エントリー、ファイルダイアログ、フォルダダイアログ）
+
+#TODO 出力先フォルダ指定（エントリー、フォルダダイアログ）
+tkinter.Label(text=output_dir_entry_text, font=label_font).pack()
+output_dir_entry = tkinter.Entry(root, textvariable=dir_buffer, width=70)
+output_dir_entry.insert(tkinter.END, output_dir_init)
+output_dir_entry.pack(anchor = 'w',fill="both" )
+
+#ダイアログ使用時の動作
+def output_dir_dialog_action(event):
+    output_dir_entry.delete(0, tkinter.END)
+    output_dir_dialog=tkFileDialog.askdirectory()
+    output_dir_entry.insert(tkinter.END, output_dir_dialog)
+
+#GUIでのフォルダ選択ボタン
+output_dir_dialog = tkinter.Button(text=output_dir_dialog_text, font=btn_font)
+output_dir_dialog.bind("<Button-1>",output_dir_dialog_action)
+output_dir_dialog.pack(anchor = 'w')
+
+#TODO リサイズ設定（チェックボックス）
+resize_check=tkinter.Checkbutton(root, text= resize_check_text, variable= resize_conf, font=checkbtn_font)
+resize_check.pack(anchor = 'w' ) 
+
 def btn_execute_action(event):
+    
 
     #実施後に設定を保存する
     config = shelve.open("config")
@@ -44,14 +81,10 @@ def btn_execute_action(event):
     config["output_dir"] = output_dir
     config.close()
 
-#UI
-#TODO 撮影者名入力（エントリー）
-
-#TODO 画像ファイル入力（エントリー、ファイルダイアログ、フォルダダイアログ）
-
-#TODO 出力先フォルダ指定（エントリー、フォルダダイアログ）
-
-#TODO リサイズ設定（チェックボックス）
 
 #TODO 実行ボタン
+btn_execute = tkinter.Button(text="実行", font=btn_font)
+btn_execute.bind("<Button-1>", btn_execute_action)
+btn_execute.pack(anchor = 'se' )
 
+root.mainloop()
