@@ -124,10 +124,15 @@ def write_to_image(image,text):
     draw.text((draw_x, draw_y), text, font=font, fill=color)
     return image
 
-def resize_for_web(image,resize_height):
-    #指定した縦解像度を基準に縮小する。
-    if image.height > resize_height:
-        resize_rate= resize_height/image.height
+def resize_for_web(image,resize_length):
+    if image.height>=image.width and image.width > resize_length:
+        resize_rate= resize_length/image.width
+        resize_height= int(image.height*resize_rate)
+        resize_width= resize_length
+        return image.resize((resize_width,resize_height),Image.LANCZOS)
+    elif image.height > resize_length:
+        resize_rate= resize_length/image.height
+        resize_height =resize_length
         resize_width= int(image.width*resize_rate)
         return image.resize((resize_width,resize_height),Image.LANCZOS)
     else:
@@ -158,12 +163,24 @@ def named_from_date(image_path):
     now = datetime.datetime.now()
     return os.path.basename(image_path).split(".")[0]+"_edited_in_"+now.strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
 
+def image_list_of(dir_):
+    #jpegファイルを検索するための正規表現
+    image_re_condtion=r".jpg|.jpeg"
+    image_re =re.compile(image_re_condtion,re.I)
+    jpg_list=[]
+    #フォルダ内のファイル・フォルダ一覧からjpgファイルを抽出
+    for item in os.listdir(dir_):
+        if os.path.isfile(dir_+ "\\"+item) and (image_re.search(item)!= None):
+            jpg_list.append(dir_+"\\"+item)
+    return jpg_list
 
-def make_photo_yodobashic(name,image_path,output_dir,resize):
+
+def make_photo_yodobashic(name,output_dir,resize,image_path):
     try:
         image=Image.open(image_path)
-    except IOError: 
-        pass #TODO なんか良い対応を考える
+    except IOError:
+        pass 
+        #TODO なんか良い対応を考える
     #出力ファイルの名前を決める
     output_name= named_from_date(image_path)
     #出力先を決める
@@ -182,8 +199,20 @@ def make_photo_yodobashic(name,image_path,output_dir,resize):
     #書き込み
     image_str_added=write_to_image(image,photo_info)
     if resize: #必要ならリサイズ
-        image_str_added=resize_for_web(image_str_added,960)
+        image_str_added=resize_for_web(image_str_added,1280)
     image_str_added.save(output_path,quality=100)
+    return 1
+
+
+def make_photo_yodobashic_continuous(name,output_dir,resize,image_dir):
+    num =0
+    if os.path.isdir(image_dir)==True:
+        for image_path in image_list_of(image_dir):
+            num += make_photo_yodobashic(name,output_dir,resize,image_path)
+    return num
+
+
+
 
 if __name__ == "__main__":
     resize=True
@@ -195,7 +224,7 @@ if __name__ == "__main__":
     while True:
         image_path = input("画像のパスを入力\n")
         if image_path !="":
-            make_photo_yodobashic(name,image_path,output_dir,resize)
+            make_photo_yodobashic(name,output_dir,resize,image_path)
             print("完了")
         else:
             print("終了")
