@@ -51,21 +51,22 @@ def get_exif_of_image(image):
     return exif_data
 
 
-def photo_info_to_str(name,**exif_data):
+def photo_info_to_str(name,name_only,**exif_data):
     #取り出したEXIF情報を一つの文字列にまとめる
     #レンズの製品名の後ろに括弧付きで型番がついている場合は削除する
+    #pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)
+    info_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
+    exif_str=""
     try:
         exif_data["LensModel"]=re.sub(r"\s?[(].+[)]","",exif_data["LensModel"])
     except KeyError:
         pass
-    #pyでの並びは(機種)(レンズ名)(シャッター速度)(絞り)(ISO感度)Photo by(撮影者名)
-    info_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings"]
-    exif_str=""
-    for id in info_requried:
-        try:
-            exif_str += exif_data[id]+","
-        except KeyError:
-            pass
+    if name_only == False:
+        for id in info_requried:
+            try:
+                exif_str += exif_data[id]+","
+            except KeyError:
+                pass
     if name == "":
         exif_str=exif_str[:-1]
     else:
@@ -102,7 +103,7 @@ def color_check(image_cropped):
 def write_to_image(image,text):
     font_path = "font\meiryo.ttc"
     #文字列を画像に書き込む
-    font_size =int(0.014*image.height)
+    font_size =int(0.016*image.height)
     margin =font_size
     font =ImageFont.truetype(font_path,font_size)
     draw = ImageDraw.Draw(image)
@@ -175,7 +176,7 @@ def image_list_of(dir_):
     return jpg_list
 
 
-def make_photo_yodobashic(name,output_dir,resize,image_path):
+def make_photo_yodobashic(name,name_only,output_dir,resize,image_path):
     try:
         image=Image.open(image_path)
     except IOError:
@@ -195,7 +196,7 @@ def make_photo_yodobashic(name,output_dir,resize,image_path):
     if orientation != 1:
         image =rotate_image(image,orientation)
     #書き込む文字列の整形
-    photo_info = photo_info_to_str(name,**exif_data)
+    photo_info = photo_info_to_str(name,name_only,**exif_data)
     #書き込み
     image_str_added=write_to_image(image,photo_info)
     if resize: #必要ならリサイズ
@@ -204,11 +205,11 @@ def make_photo_yodobashic(name,output_dir,resize,image_path):
     return 1
 
 
-def make_photo_yodobashic_continuous(name,output_dir,resize,image_dir):
+def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir):
     num =0
     if os.path.isdir(image_dir)==True:
         for image_path in image_list_of(image_dir):
-            num += make_photo_yodobashic(name,output_dir,resize,image_path)
+            num += make_photo_yodobashic(name,name_only,output_dir,resize,image_path)
     return num
 
 
@@ -216,6 +217,7 @@ def make_photo_yodobashic_continuous(name,output_dir,resize,image_dir):
 
 if __name__ == "__main__":
     resize=True
+    name_only=True
     name =input("撮影者名を入力")
     output_dir=input("出力先フォルダを指定") or "finished"
     if input("リサイズしますか？(Y/N)\n") ==("n" or "N"):
@@ -224,7 +226,7 @@ if __name__ == "__main__":
     while True:
         image_path = input("画像のパスを入力\n")
         if image_path !="":
-            make_photo_yodobashic(name,output_dir,resize,image_path)
+            make_photo_yodobashic(name,name_only,output_dir,resize,image_path)
             print("完了")
         else:
             print("終了")

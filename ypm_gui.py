@@ -34,6 +34,8 @@ output_dir_buffer =tkinter.StringVar() #出力先ディレクトリを格納
 name_buffer =tkinter.StringVar() #撮影者名を格納
 resize_conf_buffer = tkinter.BooleanVar() #リサイズ設定
 resize_conf_buffer.set(True)
+name_only_conf_buffer= tkinter.BooleanVar()#名前のみの書き込み設定
+name_only_conf_buffer.set(False)
 
 #テキスト
 name_entry_text="撮影者名"
@@ -42,6 +44,7 @@ output_dir_entry_text="出力先フォルダ"
 file_dialog_text="ファイル"
 dir_dialog_text="フォルダ"
 resize_check_text="リサイズする場合はチェック"
+name_only_check_text="名前のみを書き込む場合はチェック"
 
 #設定ファイルがある場合は設定を読み出し
 latest_config= shelve.open("ypm_config")
@@ -108,10 +111,13 @@ output_dir_dialog.bind("<Button-1>",output_dir_dialog_action)
 #リサイズ設定（チェックボックス）
 resize_check=tkinter.Checkbutton(root, text= resize_check_text, variable= resize_conf_buffer, font=checkbtn_font)
 
+#名前のみ書き込む場合の設定（チェックボックス）
+name_only_check=tkinter.Checkbutton(root, text= name_only_check_text, variable= name_only_conf_buffer, font=checkbtn_font)
 
 def btn_execute_action(event):
     btn_execute.config(state="disable")
     name=name_buffer.get()
+    name_only= name_only_conf_buffer.get()
     resize=resize_conf_buffer.get()
     output_dir=output_dir_buffer.get()
     input_file_or_dir=input_path_or_dir_buffer.get()
@@ -124,7 +130,7 @@ def btn_execute_action(event):
                 tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
                 output_dir =os.path.abspath("finished")
             image_path= input_file_or_dir
-            num = ypm.make_photo_yodobashic(name,output_dir,resize,image_path)
+            num = ypm.make_photo_yodobashic(name,name_only,output_dir,resize,image_path)
         # フォルダが入力された場合
         else :
             image_dir = input_file_or_dir
@@ -133,20 +139,17 @@ def btn_execute_action(event):
                 tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
                 output_dir =input_file_or_dir +"\\"+"finished"
             image_path= input_file_or_dir
-            num = ypm.make_photo_yodobashic_continuous(name,output_dir,resize,image_dir)
+            num = ypm.make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir)
     except:
         tkinter.messagebox.showerror(title="異常発生",message="処理を中断します。")
 
-
+    tkinter.messagebox.showinfo(title="終了",message="{}個の画像を文字入れしました。".format(num))
     #実施後に設定を保存する
     latest_config = shelve.open("ypm_config")
     latest_config["name"] = name
     latest_config["output_dir"] = output_dir
     latest_config.close()
-    if num==0:
-        tkinter.messagebox.showinfo(title="確認",message="文字入れ対象の画像はありませんでした。")
-    else:
-        tkinter.messagebox.showinfo(title="終了",message="{}個の画像を文字入れしました。".format(num))
+    
     btn_execute.config(state="active")
 
 
@@ -171,6 +174,7 @@ tkinter.Label(text=output_dir_entry_text, font=label_font).grid(row=5, column=0,
 output_dir_entry.grid(row=6, column=0,columnspan=4)
 output_dir_dialog.grid(row=7, column=0,sticky='w')
 resize_check.grid(row=8, column=0,columnspan=3,sticky='w')
-btn_execute.grid(row=9, column=3,sticky='E')
+name_only_check.grid(row=9, column=0,columnspan=3,sticky='w')
+btn_execute.grid(row=10, column=3,sticky='E')
 
 root.mainloop()
