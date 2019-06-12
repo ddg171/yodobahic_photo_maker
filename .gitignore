@@ -7,3 +7,5 @@ config.dir
 ypm_config.bak
 ypm_config.dat
 ypm_config.dir
+dist
+build

@@ -212,7 +212,9 @@ def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir)
             num += make_photo_yodobashic(name,name_only,output_dir,resize,image_path)
     return num
 
-
+def opan_dir(path):
+    if os.path.isdir(path):
+        subprocess.Popen(r'explorer "{}"'.format(path))
 
 
 if __name__ == "__main__":

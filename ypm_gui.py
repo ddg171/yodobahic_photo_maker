@@ -5,7 +5,7 @@ import tkinter.messagebox
 import tkinter.font as font
 from tkinter import filedialog as tkFileDialog
 import shelve
-
+import subprocess
 import yodobashic_photo_maker as ypm
 
 #基本設定
@@ -17,16 +17,18 @@ root = tkinter.Tk()
 root.title(app_name)
 root.geometry(app_size)
 root.resizable(0,0) #ウィンドウサイズを固定
+iconfile = 'favicon.ico'
+root.iconbitmap(default=iconfile)
 
 root.grid_columnconfigure((0, 1, 2), weight=1)
 root.grid_rowconfigure((0, 1, 2, 3, 4, 5,6,7,8), weight=1)
 
 #ラベルの設定
-label_font = font.Font(root, family="System",size=12, weight="normal")
+label_font = font.Font(root, family="System",size=10, weight="normal")
 #チェックボタンの設定
-checkbtn_font= font.Font(root, family="System",size=14, weight="normal")
+checkbtn_font= font.Font(root, family="System",size=12, weight="normal")
 #ボタンの設定
-btn_font = font.Font(root, family="System",size=9, weight="normal")
+btn_font = font.Font(root, family="System",size=8, weight="normal")
 
 #変数
 input_path_or_dir_buffer =tkinter.StringVar() #文字入れ前の画像のパスを格納
@@ -36,15 +38,18 @@ resize_conf_buffer = tkinter.BooleanVar() #リサイズ設定
 resize_conf_buffer.set(True)
 name_only_conf_buffer= tkinter.BooleanVar()#名前のみの書き込み設定
 name_only_conf_buffer.set(False)
+preview_dir_buffer= tkinter.BooleanVar()#実行後に出力先フォルダを開く
+preview_dir_buffer.set(True)
 
 #テキスト
 name_entry_text="撮影者名"
 input_file_or_dir_entry_text="画像またはフォルダを入力"
 output_dir_entry_text="出力先フォルダ"
-file_dialog_text="ファイル"
-dir_dialog_text="フォルダ"
-resize_check_text="リサイズする場合はチェック"
-name_only_check_text="名前のみを書き込む場合はチェック"
+file_dialog_text="ファイル選択"
+dir_dialog_text="フォルダ選択"
+resize_check_text="画像をリサイズする"
+preview_dir_text="実行後に出力先フォルダを開く"
+name_only_check_text="名前のみを書き込む"
 
 #設定ファイルがある場合は設定を読み出し
 latest_config= shelve.open("ypm_config")
@@ -114,12 +119,16 @@ resize_check=tkinter.Checkbutton(root, text= resize_check_text, variable= resize
 #名前のみ書き込む場合の設定（チェックボックス）
 name_only_check=tkinter.Checkbutton(root, text= name_only_check_text, variable= name_only_conf_buffer, font=checkbtn_font)
 
+#出力先フォルダの表示設定
+preview_dir_check=tkinter.Checkbutton(root, text= preview_dir_text, variable= preview_dir_buffer, font=checkbtn_font)
+
 def btn_execute_action(event):
     btn_execute.config(state="disable")
     name=name_buffer.get()
     name_only= name_only_conf_buffer.get()
     resize=resize_conf_buffer.get()
-    output_dir=output_dir_buffer.get()
+    output_dir=output_dir=os.path.abspath(output_dir_buffer.get())
+    preview_dir =preview_dir_buffer.get()
     input_file_or_dir=input_path_or_dir_buffer.get()
     num=0
         # ファイル単体が入力された場合
@@ -151,6 +160,8 @@ def btn_execute_action(event):
     latest_config.close()
     
     btn_execute.config(state="active")
+    if preview_dir:
+        ypm.opan_dir(output_dir)
 
 
 #実行ボタン
@@ -159,7 +170,6 @@ btn_execute.bind("<Button-1>", btn_execute_action)
 
 
 #各ウィジェットを配置
-
 tkinter.Label(text=name_entry_text, font=label_font).grid(row=0, column=0,sticky='w')
 name_entry.grid(row=0, column=1,columnspan=3)
 
@@ -175,6 +185,7 @@ output_dir_entry.grid(row=6, column=0,columnspan=4)
 output_dir_dialog.grid(row=7, column=0,sticky='w')
 resize_check.grid(row=8, column=0,columnspan=3,sticky='w')
 name_only_check.grid(row=9, column=0,columnspan=3,sticky='w')
-btn_execute.grid(row=10, column=3,sticky='E')
+preview_dir_check.grid(row=10,column=0,columnspan=3,sticky="w")
+btn_execute.grid(row=10, column=3,sticky='e')
 
 root.mainloop()
