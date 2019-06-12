@@ -3,6 +3,7 @@
 import re
 import os
 import datetime
+import subprocess
 
 from PIL import Image
 from PIL import ImageOps
@@ -75,7 +76,7 @@ def photo_info_to_str(name,name_only,**exif_data):
 
 def color_check(image_cropped):
     #文字の背景に合わせて文字色を決める
-    threshold =110
+    threshold =100
     color_white =(240,240,240,100)
     color_black =(30,30,30,100)
     image_cropped.convert("RGB")
@@ -100,8 +101,7 @@ def color_check(image_cropped):
         return color_white
 
 
-def write_to_image(image,text):
-    font_path = "font\meiryo.ttc"
+def write_to_image(image,text,font_path):
     #文字列を画像に書き込む
     font_size =int(0.016*image.height)
     margin =font_size
@@ -176,7 +176,7 @@ def image_list_of(dir_):
     return jpg_list
 
 
-def make_photo_yodobashic(name,name_only,output_dir,resize,image_path):
+def make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path):
     try:
         image=Image.open(image_path)
     except IOError:
@@ -198,18 +198,18 @@ def make_photo_yodobashic(name,name_only,output_dir,resize,image_path):
     #書き込む文字列の整形
     photo_info = photo_info_to_str(name,name_only,**exif_data)
     #書き込み
-    image_str_added=write_to_image(image,photo_info)
+    image_str_added=write_to_image(image,photo_info,font_path)
     if resize: #必要ならリサイズ
         image_str_added=resize_for_web(image_str_added,1280)
     image_str_added.save(output_path,quality=100)
     return 1
 
 
-def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir):
+def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir,font_path):
     num =0
     if os.path.isdir(image_dir)==True:
         for image_path in image_list_of(image_dir):
-            num += make_photo_yodobashic(name,name_only,output_dir,resize,image_path)
+            num += make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
     return num
 
 def opan_dir(path):
