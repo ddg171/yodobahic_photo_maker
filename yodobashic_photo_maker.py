@@ -168,12 +168,14 @@ def image_list_of(dir_):
     #jpegファイルを検索するための正規表現
     image_re_condtion=r".jpg|.jpeg"
     image_re =re.compile(image_re_condtion,re.I)
-    jpg_list=[]
     #フォルダ内のファイル・フォルダ一覧からjpgファイルを抽出
+    """jpg_list=[]
     for item in os.listdir(dir_):
         if os.path.isfile(dir_+ "\\"+item) and (image_re.search(item)!= None):
             jpg_list.append(dir_+"\\"+item)
-    return jpg_list
+    return jpg_list"""
+    return [dir_+"\\"+item  for item in os.listdir(dir_)  if os.path.isfile(dir_+ "\\"+item) and (image_re.search(item)!= None)]
+    
 
 
 def make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path):

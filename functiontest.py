@@ -2,14 +2,16 @@ import pprint
 import re
 import os
 from PIL import Image
-
+import yodobashic_photo_maker as ypm
 #import yodobashic_photo_maker as pym
 
 
 
 if __name__ == "__main__":
-    dir_=input()
-    print(len(image_list_of(dir_)))
+    dir_=input("入力")
+    list_jpg=ypm.image_list_of(dir_)
+    print(list_jpg)
+    print(len(list_jpg))
 
 
 
