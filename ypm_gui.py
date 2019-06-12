@@ -135,23 +135,22 @@ def btn_execute_action(event):
     num=0
     if tkinter.messagebox.askokcancel(title="確認",message=confirm_text):
         try:
+            #出力先フォルダが使用できない場合
+            if os.path.isdir(output_dir) == False or output_dir=="":
+                tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
+                output_dir =input_file_or_dir +"\\"+"finished"
             # ファイル単体が入力された場合
             if os.path.isfile(input_file_or_dir):
-                    # 出力先ディレクトリが使用できない場合
-                if os.path.isdir(output_dir) != True or output_dir=="":
-                    tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
-                    output_dir =os.path.abspath("finished")
-                image_path= input_file_or_dir
-                num = ypm.make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
+                image_path_list=[input_file_or_dir]
             # フォルダが入力された場合
-            else :
-                image_dir = input_file_or_dir
-                # 出力先ディレクトリが使用できない場合
-                if os.path.isdir(output_dir) != True or output_dir=="":
-                    tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
-                    output_dir =input_file_or_dir +"\\"+"finished"
-                image_path= input_file_or_dir
-                num = ypm.make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir,font_path)
+            else:
+                image_path_list=ypm.image_list_of(input_file_or_dir)
+            image_sum=len(image_path_list)
+            if tkinter.messagebox.askokcancel(title="枚数確認",message="{}枚の画像に文字入れします".format(image_sum)):
+                for image_path in image_path_list:
+                    num += ypm.make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
+                    #btn_execute_text="{0}/{1}枚完了".format(num,image_sum)
+                    #btn_execute.config(text=btn_execute_text)
         except:
             tkinter.messagebox.showerror(title="異常発生",message="処理を中断します。")
 

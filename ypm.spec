@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['ypm.gui'],
+a = Analysis(['ypm.py'],
              pathex=['C:\\Users\\TY\\python\\yodobashic_photo'],
              binaries=[],
              datas=[],
