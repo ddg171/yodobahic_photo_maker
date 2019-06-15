@@ -197,14 +197,19 @@ def make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
     #exif情報から画像を回転させる
     if orientation != 1:
         image =rotate_image(image,orientation)
+    #必要ならリサイズ
+    if resize:
+        image =resize_for_web(image,1280)
     #書き込む文字列の整形
     photo_info = photo_info_to_str(name,name_only,**exif_data)
     #書き込み
     image_str_added=write_to_image(image,photo_info,font_path)
-    if resize: #必要ならリサイズ
-        image_str_added=resize_for_web(image_str_added,1280)
+    """if resize: #必要ならリサイズ
+        image_str_added=resize_for_web(image_str_added,1280)"""
     image_str_added.save(output_path,quality=100)
     return 1
+
+
 
 
 def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir,font_path):

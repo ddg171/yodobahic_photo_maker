@@ -70,17 +70,14 @@ latest_config.close()
 name_entry = tkinter.Entry(root, textvariable=name_buffer)
 name_entry.insert(tkinter.END,name_init) 
 
-
 # 画像ファイル入力（エントリー、ファイルダイアログ、フォルダダイアログ）
 input_file_or_dir_entry = tkinter.Entry(root, textvariable=input_path_or_dir_buffer,width=70)
-
 
 #ダイアログ使用時の動作
 def input_file_dialog_action(event):
     input_file_or_dir_entry.delete(0, tkinter.END)
     input_file_dialog=tkFileDialog.askopenfilename(filetypes=(("jpeg files","*.jpg"),("all files","*.*")),initialdir=os.path.abspath(os.path.dirname(__file__)) )
     input_file_or_dir_entry.insert(tkinter.END, input_file_dialog)
-
 
 def input_dir_dialog_action(event):
     input_file_or_dir_entry.delete(0, tkinter.END)
@@ -99,7 +96,6 @@ input_dir_dialog.bind("<Button-1>",input_dir_dialog_action)
 output_dir_entry = tkinter.Entry(root, textvariable=output_dir_buffer,width=70)
 output_dir_entry.insert(tkinter.END, output_dir_init)
 
-
 #ダイアログ使用時の動作
 def output_dir_dialog_action(event):
     output_dir_entry.delete(0, tkinter.END)
@@ -110,12 +106,11 @@ def output_dir_dialog_action(event):
 output_dir_dialog = tkinter.Button(text=dir_dialog_text, font=btn_font)
 output_dir_dialog.bind("<Button-1>",output_dir_dialog_action)
 
-
 #リサイズ設定（チェックボックス）
 resize_check=tkinter.Checkbutton(root, text= resize_check_text, variable= resize_conf_buffer, font=checkbtn_font)
 #名前のみ書き込む場合の設定（チェックボックス）
 name_only_check=tkinter.Checkbutton(root, text= name_only_check_text, variable= name_only_conf_buffer, font=checkbtn_font)
-#出力先フォルダの表示設定
+#出力先フォルダの表示設定(チェックボックス)
 preview_dir_check=tkinter.Checkbutton(root, text= preview_dir_text, variable= preview_dir_buffer, font=checkbtn_font)
 
 def btn_execute_action(event):
@@ -125,20 +120,38 @@ def btn_execute_action(event):
     name=name_buffer.get()
     name_only= name_only_conf_buffer.get()
     resize=resize_conf_buffer.get()
-    output_dir=output_dir=os.path.abspath(output_dir_buffer.get())
+    output_dir=os.path.abspath(output_dir_buffer.get())
     preview_dir =preview_dir_buffer.get()
-    input_file_or_dir=input_path_or_dir_buffer.get()
+    input_file_or_dir=os.path.abspath(input_path_or_dir_buffer.get())
 
-    #実行前の確認
+    
     confirm_text_list=[ "有" if i==True else "無"  for i in [resize,name_only,preview_dir] ]
-    confirm_text="リサイズ:{0[0]},名前のみ:{0[1]},プレビュー:{0[2]}で実行します。".format(confirm_text_list)
+    confirm_text="リサイズ:{0[0]},名前のみ:{0[1]},プレビュー:{0[2]} で実行します。".format(confirm_text_list)
+    #変更枚数のカウンタ
     num=0
+    #実行前の確認
     if tkinter.messagebox.askokcancel(title="確認",message=confirm_text):
+        #出力先フォルダの決定
         try:
-            #出力先フォルダが使用できない場合
-            if os.path.isdir(output_dir) == False or output_dir=="":
-                tkinter.messagebox.showerror(title="出力フォルダ選択不可",message="出力先フォルダを変更しました。")
-                output_dir =input_file_or_dir +"\\"+"finished"
+            #出力先フォルダが使用できないか、作業フォルダの場合
+            if os.path.isfile(output_dir):
+                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
+                output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")
+            elif output_dir==os.getcwd() and os.path.isdir(input_file_or_dir):
+                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
+                output_dir=os.path.join(input_file_or_dir,"Finished")
+            else:
+                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
+                output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")
+        except:
+            tkinter.messagebox.showerror(title="異常発生",message="作業ディレクトリに出力します。")
+            output_dir =os.getcwd()
+        
+        #入力先と出力先をエントリーに反映
+        input_file_or_dir_entry.insert(tkinter.END,input_file_or_dir)
+        output_dir_entry.insert(tkinter.END,output_dir)
+
+        try:
             # ファイル単体が入力された場合
             if os.path.isfile(input_file_or_dir):
                 image_path_list=[input_file_or_dir]
@@ -146,6 +159,7 @@ def btn_execute_action(event):
             else:
                 image_path_list=ypm.image_list_of(input_file_or_dir)
             image_sum=len(image_path_list)
+
             if tkinter.messagebox.askokcancel(title="枚数確認",message="{}枚の画像に文字入れします".format(image_sum)):
                 for image_path in image_path_list:
                     num += ypm.make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
@@ -155,6 +169,7 @@ def btn_execute_action(event):
             tkinter.messagebox.showerror(title="異常発生",message="処理を中断します。")
 
         tkinter.messagebox.showinfo(title="終了",message="{}個の画像を文字入れしました。".format(num))
+        
         #実施後に設定を保存する
         latest_config = shelve.open("ypm_config")
         latest_config["name"] = name
@@ -162,15 +177,14 @@ def btn_execute_action(event):
         latest_config.close()
     else:
         tkinter.messagebox.showinfo(title="中断",message="処理を取り止めました")
+        #TODO エラーごとに表示を分ける
 
     if preview_dir and num>0:
         ypm.opan_dir(output_dir)
     btn_execute.config(state="active")
     btn_execute.config(text="実行")
 
-
 #実行ボタン
-
 btn_execute = tkinter.Button(text="実行", font=btn_font)
 btn_execute.bind("<Button-1>", btn_execute_action)
 
