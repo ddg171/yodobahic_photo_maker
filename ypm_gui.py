@@ -1,5 +1,5 @@
 #coding UTF-8
-#TkinterでGUI化する
+#TkinterでGUI化
 import os
 import tkinter.messagebox
 import tkinter.font as font
@@ -42,6 +42,8 @@ name_only_conf_buffer= tkinter.BooleanVar()#名前のみの書き込み設定
 name_only_conf_buffer.set(False)
 preview_dir_buffer= tkinter.BooleanVar()#実行後に出力先フォルダを開く
 preview_dir_buffer.set(True)
+#TODO リサイズする解像度を選択可能にする。
+
 
 #テキスト
 name_entry_text="撮影者名"
@@ -140,15 +142,17 @@ def btn_execute_action(event):
             elif output_dir==os.getcwd() and os.path.isdir(input_file_or_dir):
                 tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
                 output_dir=os.path.join(input_file_or_dir,"Finished")
-            else:
+            """else:
                 tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
-                output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")
+                output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")"""
         except:
             tkinter.messagebox.showerror(title="異常発生",message="作業ディレクトリに出力します。")
             output_dir =os.getcwd()
         
         #入力先と出力先をエントリーに反映
+        input_file_or_dir_entry.delete(0, tkinter.END)
         input_file_or_dir_entry.insert(tkinter.END,input_file_or_dir)
+        output_dir_entry.delete(0, tkinter.END)
         output_dir_entry.insert(tkinter.END,output_dir)
 
         try:

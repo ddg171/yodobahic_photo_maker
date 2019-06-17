@@ -14,15 +14,11 @@ from PIL import ImageFont
 def get_exif_of_image(image):
     TAGS_lite={0x0110: "Model",0xa434: "LensModel",0x829a: "ExposureTime",0x829d: "FNumber",0x8827: "ISOSpeedRatings",0x0112: "Orientation",}
     data_requried=["Model","LensModel","ExposureTime","FNumber","ISOSpeedRatings","Orientation"]
-    # Exif データを取得
-    # 存在しなければそのまま終了 空の辞書を返す
     try:
         exif = image._getexif()
     except AttributeError:
         return {}
 
-    # タグIDそのままでは人が読めないのでデコードして
-    # テーブルに格納する
     exif_table = {}
     try:
         for tag_id, value in exif.items():
