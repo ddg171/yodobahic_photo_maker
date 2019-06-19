@@ -137,11 +137,12 @@ def btn_execute_action(event):
         try:
             #出力先フォルダが使用できないか、作業フォルダの場合
             if os.path.isfile(output_dir):
-                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
+                tkinter.messagebox.showerror(title="確認",message="出力先フォルダにファイルが指定されています。")
                 output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")
             elif output_dir==os.getcwd() and os.path.isdir(input_file_or_dir):
-                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
+                tkinter.messagebox.showerror(title="確認",message="出力先フォルダが空欄か不正です。")
                 output_dir=os.path.join(input_file_or_dir,"Finished")
+            #常にフォルダが変更されてしまうためコメントアウト
             """else:
                 tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
                 output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")"""
@@ -167,6 +168,7 @@ def btn_execute_action(event):
             if tkinter.messagebox.askokcancel(title="枚数確認",message="{}枚の画像に文字入れします".format(image_sum)):
                 for image_path in image_path_list:
                     num += ypm.make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
+                    #TODO ボタンに処理済み画像数を表示させたい [3/14]<=こんな感じで
                     #btn_execute_text="{0}/{1}枚完了".format(num,image_sum)
                     #btn_execute.config(text=btn_execute_text)
         except:
@@ -180,8 +182,9 @@ def btn_execute_action(event):
         latest_config["output_dir"] = output_dir
         latest_config.close()
     else:
-        tkinter.messagebox.showinfo(title="中断",message="処理を取り止めました")
+        tkinter.messagebox.showinfo(title="中断",message="処理を中断します。")
         #TODO エラーごとに表示を分ける
+        # 不正終了しないようにするための応急処置
 
     if preview_dir and num>0:
         ypm.opan_dir(output_dir)

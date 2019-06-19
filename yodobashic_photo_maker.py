@@ -165,6 +165,7 @@ def image_list_of(dir_):
     image_re_condtion=r".jpg|.jpeg"
     image_re =re.compile(image_re_condtion,re.I)
     #フォルダ内のファイル・フォルダ一覧からjpgファイルを抽出
+    #内包表記化する前の処理。念の為残す
     """jpg_list=[]
     for item in os.listdir(dir_):
         if os.path.isfile(dir_+ "\\"+item) and (image_re.search(item)!= None):
@@ -175,11 +176,7 @@ def image_list_of(dir_):
 
 
 def make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path):
-    try:
-        image=Image.open(image_path)
-    except IOError:
-        pass 
-        #TODO なんか良い対応を考える
+    image=Image.open(image_path)
     #出力ファイルの名前を決める
     output_name= named_from_date(image_path)
     #出力先を決める
@@ -207,13 +204,13 @@ def make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
 
 
 
-
-def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir,font_path):
+#使わなくなったためコメントアウト
+"""def make_photo_yodobashic_continuous(name,name_only,output_dir,resize,image_dir,font_path):
     num =0
     if os.path.isdir(image_dir)==True:
         for image_path in image_list_of(image_dir):
             num += make_photo_yodobashic(name,name_only,output_dir,resize,image_path,font_path)
-    return num
+    return num"""
 
 def opan_dir(path):
     if os.path.isdir(path):
