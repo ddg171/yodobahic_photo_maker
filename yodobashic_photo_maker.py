@@ -47,6 +47,16 @@ def get_exif_of_image(image):
             pass
     return exif_data
 
+# レンズ名が無い場合、()が製品名のあとに付いているか確認する
+def check_lensmodel(lensemodel):
+    fix_keyword_list=("-- mm f/--",)
+    for keyword in fix_keyword_list:
+        if keyword in lensemodel:
+            return True
+    else:
+        return False
+    
+
 
 def photo_info_to_str(name,name_only,**exif_data):
     #取り出したEXIF情報を一つの文字列にまとめる
@@ -56,6 +66,8 @@ def photo_info_to_str(name,name_only,**exif_data):
     exif_str=""
     try:
         exif_data["LensModel"]=re.sub(r"\s?[(].+[)]","",exif_data["LensModel"])
+        if check_lensmodel(exif_data["LensModel"]):
+            del exif_data["LensModel"]
     except KeyError:
         pass
     if name_only == False:
@@ -233,3 +245,4 @@ if __name__ == "__main__":
         else:
             print("終了")
             break
+
