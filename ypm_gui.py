@@ -142,10 +142,6 @@ def btn_execute_action(event):
             elif output_dir==os.getcwd() and os.path.isdir(input_file_or_dir):
                 tkinter.messagebox.showerror(title="確認",message="出力先フォルダが空欄か不正です。")
                 output_dir=os.path.join(input_file_or_dir,"Finished")
-            #常にフォルダが変更されてしまうためコメントアウト
-            """else:
-                tkinter.messagebox.showerror(title="確認",message="出力先フォルダを変更します。")
-                output_dir=os.path.join( os.path.dirname(input_file_or_dir),"Finished")"""
         except:
             tkinter.messagebox.showerror(title="異常発生",message="作業ディレクトリに出力します。")
             output_dir =os.getcwd()
