@@ -9,7 +9,6 @@ from PIL import Image
 from PIL import ImageOps
 from PIL import ImageDraw
 from PIL import ImageFont
-#from PIL.ExifTags import TAGS
 
 def get_exif_of_image(image):
     TAGS_lite={0x0110: "Model",0xa434: "LensModel",0x829a: "ExposureTime",0x829d: "FNumber",0x8827: "ISOSpeedRatings",0x0112: "Orientation",}
